@@ -18,4 +18,9 @@ export default defineConfig([globalIgnores(['dist']), {
     globals: globals.browser,
     parserOptions: { ecmaFeatures: { jsx: true } },
   },
+  ignores: [
+      'dist/**',
+      'storybook-static/**',
+      'node_modules/**',
+    ],
 }, ...storybook.configs["flat/recommended"]])

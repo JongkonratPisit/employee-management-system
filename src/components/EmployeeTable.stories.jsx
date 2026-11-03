@@ -1,6 +1,6 @@
 
 import EmployeeTable from './EmployeeTable'
-import { fn } from 'storybook/test'
+import { fn, expect, userEvent, within } from 'storybook/test'
 
 const meta = {
   title: 'Employee Management/EmployeeTable',
@@ -73,5 +73,101 @@ export const ManyEmployees = {
     onView: fn(),
     onEdit: fn(),
     onDelete: fn(),
+  },
+}
+
+export const ViewEmployee = {
+  args: {
+    employees: [
+      {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '081-234-5678',
+        company: {
+          department: 'Engineering',
+        },
+      },
+    ],
+    onView: fn(),
+    onEdit: fn(),
+    onDelete: fn(),
+  },
+
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'View Employee' })
+    )
+
+    await expect(args.onView).toHaveBeenCalledWith(
+      args.employees[0]
+    )
+  },
+}
+
+export const EditEmployee = {
+  args: {
+    employees: [
+      {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '081-234-5678',
+        company: {
+          department: 'Engineering',
+        },
+      },
+    ],
+    onView: fn(),
+    onEdit: fn(),
+    onDelete: fn(),
+  },
+
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Edit Employee' })
+    )
+
+    await expect(args.onEdit).toHaveBeenCalledWith(
+      args.employees[0]
+    )
+  },
+}
+
+export const DeleteEmployee = {
+  args: {
+    employees: [
+      {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '081-234-5678',
+        company: {
+          department: 'Engineering',
+        },
+      },
+    ],
+    onView: fn(),
+    onEdit: fn(),
+    onDelete: fn(),
+  },
+
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Delete Employee' })
+    )
+
+    await expect(args.onDelete).toHaveBeenCalledWith(
+      args.employees[0]
+    )
   },
 }

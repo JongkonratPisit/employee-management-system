@@ -259,7 +259,7 @@ export default function EmployeeForm({ employee, onSubmit, isSubmitting, onCance
                 </div>
 
                 <div className="form-group form-group-full">
-                    <lebel htmlFor="address">Address</lebel>
+                    <lable htmlFor="address">Address</lable>
                     <textarea 
                         id="address"
                         name="address"

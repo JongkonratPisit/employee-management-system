@@ -1,6 +1,6 @@
 
 import EmployeeForm from './EmployeeForm'
-import { fn } from 'storybook/test'
+import { fn, expect, userEvent, within } from 'storybook/test'
 
 const mockEmployee = {
     id: 1,
@@ -49,8 +49,20 @@ const meta = {
         },
 
         employee: {
-        control: 'object',
-        description: 'Employee information used to populate the form',
+            control: 'object',
+            description: 'Employee information used to populate the form',
+        },
+
+        onSubmit: {
+            description: 'Callback function called when the form is submitted with valid employee data',
+        },
+
+        onCancel: {
+            description: 'Callback function called when the user clicks the Cancel or Back button',
+        },
+
+        onEdit: {
+            description: 'Callback function called when the user clicks Edit Employee in view mode',
         },
     },
 }
@@ -58,13 +70,68 @@ const meta = {
 export default meta
 
 export const Add = {
-    args: {
-        employee: {},
-        mode: 'add',
-        isSubmitting: false,
-        onSubmit: fn(),
-        onCancel: fn(),
-    },
+  args: {
+    employee: {},
+    mode: 'add',
+    isSubmitting: false,
+    onSubmit: fn(),
+    onCancel: fn(),
+  },
+
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.type(
+      canvas.getByLabelText('First Name'),
+      'John'
+    )
+
+    await userEvent.type(
+      canvas.getByLabelText('Last Name'),
+      'Doe'
+    )
+
+    await userEvent.type(
+      canvas.getByLabelText('Email'),
+      'john.doe@example.com'
+    )
+
+    await userEvent.selectOptions(
+      canvas.getByLabelText('Gender'),
+      'male'
+    )
+
+    await userEvent.selectOptions(
+      canvas.getByLabelText('Department'),
+      'Engineering'
+    )
+
+    await userEvent.type(
+      canvas.getByLabelText('Job Title'),
+      'Software Engineer'
+    )
+
+    await userEvent.type(
+      canvas.getByLabelText('Company Name'),
+      'ABC Company'
+    )
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Add Employee' })
+    )
+
+    await expect(args.onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        gender: 'male',
+        department: 'Engineering',
+        jobTitle: 'Software Engineer',
+        companyName: 'ABC Company',
+      })
+    )
+  },
 }
 
 export const Edit = {
@@ -93,6 +160,32 @@ export const Edit = {
         onSubmit: fn(),
         onCancel: fn(),
     },
+    play: async ({ canvasElement, args }) => {
+        const canvas = within(canvasElement)
+
+        const firstNameInput = canvas.getByLabelText('First Name')
+
+        // Verify existing employee data
+        await expect(firstNameInput).toHaveValue('John')
+
+        // Update first name
+        await userEvent.clear(firstNameInput)
+        await userEvent.type(firstNameInput, 'Johnny')
+
+        // Submit the form
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Update Employee' })
+        )
+
+        // Verify submitted data
+        await expect(args.onSubmit).toHaveBeenCalledWith(
+            expect.objectContaining({
+            firstName: 'Johnny',
+            lastName: 'Doe',
+            email: 'john.doe@gmail.com',
+            })
+        )
+    },
 }
 
 export const View = {
@@ -103,4 +196,55 @@ export const View = {
         onCancel: fn(),
         onEdit: fn(),
     },
+}
+
+export const Validation = {
+  args: {
+    employee: {},
+    mode: 'add',
+    isSubmitting: false,
+    onSubmit: fn(),
+    onCancel: fn(),
+  },
+
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // Submit without entering any data
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Add Employee' })
+    )
+
+    // Verify validation messages
+    await expect(
+      canvas.getByText('First name is required.')
+    ).toBeVisible()
+
+    await expect(
+      canvas.getByText('Last name is required.')
+    ).toBeVisible()
+
+    await expect(
+      canvas.getByText('Email is required.')
+    ).toBeVisible()
+
+    await expect(
+      canvas.getByText('Please select a gender.')
+    ).toBeVisible()
+
+    await expect(
+      canvas.getByText('Please select a department.')
+    ).toBeVisible()
+
+    await expect(
+      canvas.getByText('Job title is required.')
+    ).toBeVisible()
+
+    await expect(
+      canvas.getByText('Company name is required.')
+    ).toBeVisible()
+
+    // Verify onSubmit was not called
+    await expect(args.onSubmit).not.toHaveBeenCalled()
+  },
 }
