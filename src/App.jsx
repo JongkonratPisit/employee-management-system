@@ -463,8 +463,8 @@ function App() {
                 ← Back to Employees
               </button>
 
-              <h1>{editingEmployee ? 'Edit Employee' : 'Add Employee'}</h1>
-              <p>{editingEmployee ? 'Update employee information below.' : 'Fill out the form below to add a new employee.'}</p>
+              <h1>{editingEmployee ? 'Edit Employee' : formMode === 'add' ? 'Add Employee' : 'Employee Detail'}</h1>
+              <p>{editingEmployee ? 'Update employee information below.' : formMode === 'add' ? 'Fill out the form below to add a new employee.' : ''}</p>
             </header>
 
             <EmployeeForm 
